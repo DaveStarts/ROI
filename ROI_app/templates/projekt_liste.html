@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Projektliste</title>
+</head>
+<body>
+    <h1>Alle Projekte</h1>
+    <ul>
+        {% for projekt in projekte %}
+            <li>{{ projekt.name }} – Start: {{ projekt.startdatum }}</li>
+        {% empty %}
+            <li>Keine Projekte vorhanden.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -1,0 +1,38 @@
+{% extends "main.html" %}
+
+{% block title %}Startseite{% endblock %}
+
+{% block sidebar %}
+    <h3>Programme & KalkIDs</h3>
+    <ul>
+        {% for programm in programme %}
+            <li class="programm-box">
+                <div class="programm-header" onclick="toggleProgramme('kalk-{{ programm.id }}')">
+                    {{ programm.name }}
+                </div>
+                <ul id="kalk-{{ programm.id }}" style="display: none; margin-top: 10px;">
+                    {% for kalk in programm.kalk_ids.all %}
+                        <li>{{ kalk.name }}</li>
+                    {% empty %}
+                        
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block content %}
+    <h1>Willkommen auf der Startseite</h1>
+    <p>Hier kannst du deine Programme und KalkIDs sehen.</p>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script>
+        function toggleProgramme(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
+        }
+    </script>
+{% endblock %}
