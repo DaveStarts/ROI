@@ -7,7 +7,8 @@
     <ul>
         {% for programm in programme %}
             <li class="programm-box">
-                <div class="programm-header" onclick="toggleProgramme('kalk-{{ programm.id }}')">
+                <div id="programm-name-{{ programm.id }}" class="programm-header" onclick="toggleProgramme('kalk-{{ programm.id }}')"
+                    oncontextmenu="showContextMenu(event, {{ programm.id }}, '{{ programm.name|escapejs }}'); return false;">
                     {{ programm.name }}
                 </div>
                 <ul id="kalk-{{ programm.id }}" style="display: none; margin-top: 10px;">
@@ -25,9 +26,26 @@
 {% block content %}
     <h1>Willkommen auf der Startseite</h1>
     <p>Hier kannst du deine Programme und KalkIDs sehen.</p>
+    <h1>Neues Programm anlegen</h1>
+
+    <form method="POST" action="">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Speichern</button>
+    </form>
+    
 {% endblock %}
 
+
 {% block extra_scripts %}
+    <!-- Kontextmenü für Programme -->
+    <div id="context-menu" style="display:none; position:absolute; background:#fff; border:1px solid #ccc; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); z-index:1000;">
+        <ul style="list-style:none; margin:0; padding:5px 0;">
+            <li id="rename" style="padding:5px 20px; cursor:pointer;">Name ändern</li>
+            <li id="new-programm" style="padding:5px 20px; cursor:pointer;">Neues Programm anlegen</li>
+        </ul>
+    </div>
+
     <script>
         function toggleProgramme(id) {
             const el = document.getElementById(id);
@@ -35,4 +53,85 @@
             el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
         }
     </script>
+
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Prüfen, ob der Cookie mit dem Namen beginnt
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    function renameEntity(type, id, newName) {
+    fetch(`/rename/${type}/${id}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({new_name: newName})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Hier z.B. UI aktualisieren, wenn du willst:
+            document.querySelector(`#${type}-name-${id}`).textContent = newName;
+        } else {
+            alert('Fehler: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+</script>
+
+<script>
+    const contextMenu = document.getElementById('context-menu');
+    let currentProgrammId = null;
+
+    function showContextMenu(event, programmId, programmName) {
+        currentProgrammId = programmId;
+
+        // Menü positionieren
+        contextMenu.style.top = event.pageY + 'px';
+        contextMenu.style.left = event.pageX + 'px';
+        contextMenu.style.display = 'block';
+
+        event.preventDefault();
+    }
+
+    // Klick außerhalb des Menüs schließt es
+    document.addEventListener('click', () => {
+        contextMenu.style.display = 'none';
+    });
+
+    // Aktionen
+    document.getElementById('rename').addEventListener('click', () => {
+        contextMenu.style.display = 'none';
+        const newName = prompt('Neuen Namen eingeben:');
+        if(newName) {
+            renameEntity('programm', currentProgrammId, newName);
+        }
+    });
+
+    document.getElementById('new-programm').addEventListener('click', () => {
+        contextMenu.style.display = 'none';
+        const newName = prompt('Name für neues Programm:');
+        if(newName) {
+            // TODO: Ajax-Request zum Backend, um neues Programm anzulegen
+            alert(`Neues Programm soll angelegt werden mit Namen: ${newName}`);
+        }
+    });
+</script>
 {% endblock %}
