@@ -7,10 +7,17 @@
     <ul>
         {% for programm in programme %}
             <li class="programm-box">
-                <div id="programm-name-{{ programm.id }}" class="programm-header" onclick="toggleProgramme('kalk-{{ programm.id }}')"
-                    oncontextmenu="showContextMenu(event, {{ programm.id }}, '{{ programm.name|escapejs }}'); return false;">
-                    {{ programm.name }}
+                <div class="programm-header-wrapper">
+                    <!-- Kleiner Button vor dem Namen -->
+                    <button onclick="toggleProgramme(this, 'kalk-{{ programm.id }}')" class="toggle-btn">▶</button>
+
+                    <span id="programm-name-{{ programm.id }}" 
+                        class="programm-header"
+                        oncontextmenu="showContextMenu(event, {{ programm.id }}, '{{ programm.name|escapejs }}'); return false;">
+                        {{ programm.name }}
+                    </span>
                 </div>
+
                 <ul id="kalk-{{ programm.id }}" style="display: none; margin-top: 10px;">
                     {% for kalk in programm.kalk_ids.all %}
                         <li>{{ kalk.name }}</li>
@@ -26,7 +33,6 @@
 {% block content %}
     <h1>Willkommen auf der Startseite</h1>
     <p>Hier kannst du deine Programme und KalkIDs sehen.</p>
-    <h1>Neues Programm anlegen</h1>
 
     <form method="POST" action="">
         {% csrf_token %}
@@ -47,10 +53,13 @@
     </div>
 
     <script>
-        function toggleProgramme(id) {
+        function toggleProgramme(button, id) {
             const el = document.getElementById(id);
             if (!el) return;
-            el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
+
+            const isVisible = el.style.display === 'block';
+            el.style.display = isVisible ? 'none' : 'block';
+            button.textContent = isVisible ? '▶' : '▼';
         }
     </script>
 

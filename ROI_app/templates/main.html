@@ -1,10 +1,9 @@
-{% load static %}
 <!DOCTYPE html>
 <html>
+    {% load static_version %}
 <head>
-    <meta charset="UTF-8">
     <title>{% block title %}Meine Seite{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="{% static_version 'styles.css' %}">
 </head>
 <body>
     <!-- Header steht ganz oben -->
